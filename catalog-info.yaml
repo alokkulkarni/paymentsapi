@@ -20,7 +20,7 @@ spec:
   type: service
   lifecycle: experimental
   owner: "group:default/productsandchannel"
-  system: alokkulkarni/paymentsapi
+  system: alokkulkarni/payments
   providesApis:
     - "api/info"
   providedApis:
