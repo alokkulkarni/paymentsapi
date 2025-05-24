@@ -136,52 +136,26 @@ pipeline {
         //         }
         //     }
         // }
-        stage('Build and Push Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    docker.withRegistry("${DOCKER_REGISTRY}", 'docker-credential') {  // Configure Docker credentials in Jenkins
-                        def customImage = docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
-                        customImage.push()
-                        customImage.push('latest')
+                    // Build the Docker image
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                }
+            }
+        }
+
+        stage('Login to Docker Hub & Push') {
+            steps {
+                script {
+                    // Use Jenkins credentials for Docker login
+                    withDockerRegistry(credentialsId: 'docker-credential', url: '') {
+                        // Push the Docker image
+                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
         }
-        // stage('Container Security Scan') {
-        //     steps {
-        //         script {
-        //             def workspace = pwd()
-        //             def scanScript = "${workspace}/scripts/container-scan.sh"
-        //             sh """
-        //                 cd ${workspace}
-        //                 ${scanScript} -i "${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}" \
-        //                             -b "${SCAN_S3_BUCKET}" \
-        //                             -f "json" \
-        //                             -s "HIGH,CRITICAL" \
-        //                             -R "${AWS_REGION}"
-        //             """
-        //         }
-        //     }
-        // }
-        // stage('Deploy to EKS') {
-        //     steps {
-        //         script {
-        //             def workspace = pwd()
-        //             withKubeConfig([credentialsId: 'eks-kubeconfig']) {
-        //                 sh """
-        //                     cd ${workspace}
-        //                     helm upgrade --install paymentsapi helm/paymentsapi \
-        //                         --namespace dev \
-        //                         --create-namespace \
-        //                         --set image.repository=${DOCKER_REGISTRY}/${IMAGE_NAME} \
-        //                         --set image.tag=${IMAGE_TAG} \
-        //                         --set sbom.enabled=true \
-        //                         -f helm/paymentsapi/values-dev.yaml
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
     }
     post {
         always {
