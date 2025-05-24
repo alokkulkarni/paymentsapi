@@ -23,13 +23,5 @@ spec:
   system: alokkulkarni/paymentsapi
   providesApis:
     - kind: OpenAPI
-      name: paymentsapi
-      description: OpenAPI specification for the service
-      lifecycle: experimental
-      owner: "group:default/productsandchannel" 
   providedApis:
     - kind: OpenAPI
-      name: paymentsapi
-      description: OpenAPI specification for the service
-      lifecycle: experimental
-      owner: "group:default/productsandchannel"
