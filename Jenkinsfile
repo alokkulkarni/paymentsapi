@@ -107,7 +107,7 @@ pipeline {
                     grype version
 
                     # Run Grype scan on the SBOM file and output JSON report
-                    grype sbom:${sbomFile} -o json > ${reportFile}
+                    grype sbom:${sbomFile} -o json --add-cpes-if-none > ${reportFile}
 
                     echo "Grype scan complete. Report saved as ${reportFile}"
                     """
@@ -116,7 +116,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                 withSonarQubeEnv('sonarqubeak') {
+                 withSonarQubeEnv('sonarToken') {
                     sh """
                         bash ./gradlew sonar -Dsonar.host.url="http://192.168.1.174:9000" -Dsonar.projectKey=alokkulkarni_paymentsapi -Dsonar.jacocoPath="**/build/test-results/test/*.xml"
                     """
