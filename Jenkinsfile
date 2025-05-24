@@ -94,8 +94,8 @@ pipeline {
                 // Add execute permission
                 sh '''
                     echo "Fixing Grype permissions..."
-                    chmod +x "$GRYPE_BIN" || true
-                    ls -l "$GRYPE_BIN"
+                    chmod +x "$WORKSPACE/grypeTmpDir/grype" || true
+                    ls -l ""$WORKSPACE/grypeTmpDir/grype"
                 '''
                 }
             }
@@ -103,7 +103,7 @@ pipeline {
         stage('Analyze SBOM for Vulnerabilities') {
             steps {
                 // Use Grype or other tool to scan SBOM for vulnerabilities
-                grypeScan autoInstall: false, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
+                grypeScan autoInstall: true, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
                 archiveArtifacts artifacts: '*', fingerprint: true
             }
         }
