@@ -134,41 +134,6 @@ pipeline {
         //         }
         //     }
         // }
-        stage('Get Version') {
-            steps {
-                script {
-                    def version = ''
-
-                    if (fileExists('pom.xml')) {
-                        // Extract version from pom.xml using xml parsing
-                        def pom = readFile('pom.xml')
-                        def matcher = pom =~ /<version>(.+?)<\/version>/
-                        if (matcher) {
-                            version = matcher[0][1].trim()
-                        } else {
-                            error "Could not find <version> in pom.xml"
-                        }
-                    } else if (fileExists('build.gradle')) {
-                        // Extract version from build.gradle file
-                        def gradleVersion = sh(
-                            script: "grep '^version' build.gradle | head -1 | awk -F'=' '{print \$2}' | tr -d \" '\"",
-                            returnStdout: true
-                        ).trim()
-
-                        if (gradleVersion) {
-                            version = gradleVersion
-                        } else {
-                            error "Could not find version in build.gradle"
-                        }
-                    } else {
-                        error "Neither pom.xml nor build.gradle found!"
-                    }
-
-                    echo "Extracted version: ${version}"
-                    env.RELEASE_VERSION = version
-                }
-            }
-        }
         stage('Setup Docker Buildx') {
             steps {
                 sh '''
@@ -187,23 +152,34 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def branch = env.BRANCH_NAME?.replaceAll('/', '-') ?: "unknown-branch"
-                    def branchTag = "${env.IMAGE_NAME}:${branch}"
-                    def releaseTag = "${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
+                    // Extract version from pom.xml or build.gradle and strip "-SNAPSHOT"
+                    def version = ''
+                    if (fileExists('pom.xml')) {
+                        version = sh(
+                            script: "grep '<version>' pom.xml | head -1 | sed -E 's/.*<version>([^<]+)<\\/version>.*/\\1/' | sed 's/-SNAPSHOT//' | xargs",
+                            returnStdout: true
+                        ).trim()
+                    } else if (fileExists('build.gradle')) {
+                        version = sh(
+                            script: "grep '^version' build.gradle | sed -E 's/version[ \\t]*=[ \\t]*[\"'\\']([^\"'\\']+)[\"'\\']/\\1/' | sed 's/-SNAPSHOT//' | xargs",
+                            returnStdout: true
+                        ).trim()
+                    }
 
-                    echo "Building Docker image with tags: ${branchTag}, ${releaseTag}"
+                    if (!version) {
+                        version = '0.0.1'
+                    }
+
+                    def branch = env.BRANCH_NAME ?: 'unknown-branch'
 
                     sh """
                         docker buildx build \
                             --platform=linux/amd64 \
                             --load \
-                            -t paymentsapi:${releaseTag} \
+                            -t paymentsapi:${branch} \
+                            -t paymentsapi:v${version} \
                             .
                     """
-                    // sh 'docker buildx create --use || true'
-                    // sh """
-                    //   docker buildx build --platform linux/amd64 -t ${branchTag} -t ${releaseTag} .
-                    // """
                 }
             }
         }
