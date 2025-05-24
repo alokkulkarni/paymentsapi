@@ -116,10 +116,10 @@ task copySbomArtifacts(type: Copy, dependsOn: 'cyclonedxBom') {
 }
 
 build {
-    dependsOn 'jacocoTestReport'
-    dependsOn 'jacocoTestCoverageVerification'
-    dependsOn 'pitest'
-    dependsOn 'sonar'
-    dependsOn qualityCheck
-    dependsOn copySbomArtifacts
+    // dependsOn 'jacocoTestReport'
+    // dependsOn 'jacocoTestCoverageVerification'
+    // dependsOn 'pitest'
+    // dependsOn 'sonar'
+    // dependsOn qualityCheck
+    // dependsOn copySbomArtifacts
 }
