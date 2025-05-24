@@ -82,28 +82,24 @@ pipeline {
             steps {
                 // Trigger install, then chmod the binary
                 script {
-                // Trigger dummy scan to force install
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    grypeScanner(
-                    image: 'busybox:latest',
-                    autoInstall: true,
-                    failOnSeverity: 'critical'
-                    )
-                }
+                    // Trigger dummy scan to force install
+                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                        grypeScan autoInstall: true image: 'busybox:latest'
+                    }
 
-                // Add execute permission
-                sh '''
-                    echo "Fixing Grype permissions..."
-                    chmod +x "$WORKSPACE/grypeTmpDir/grype" || true
-                    ls -l ""$WORKSPACE/grypeTmpDir/grype"
-                '''
+                    // Add execute permission
+                    sh '''
+                        echo "Fixing Grype permissions..."
+                        chmod +x "$WORKSPACE/grypeTmpDir/grype" || true
+                        ls -l "$WORKSPACE/grypeTmpDir/grype"
+                    '''
                 }
             }
         }
         stage('Analyze SBOM for Vulnerabilities') {
             steps {
                 // Use Grype or other tool to scan SBOM for vulnerabilities
-                grypeScan autoInstall: true, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
+                grypeScan autoInstall: false, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
                 archiveArtifacts artifacts: '*', fingerprint: true
             }
         }
