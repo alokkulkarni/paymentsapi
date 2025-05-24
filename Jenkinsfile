@@ -118,7 +118,7 @@ pipeline {
             steps {
                  withSonarQubeEnv('sonarToken') {
                     sh """
-                        bash ./gradlew sonar -Dsonar.host.url="http://192.168.1.174:9000" -Dsonar.projectKey=alokkulkarni_paymentsapi -Dsonar.jacocoPath="**/build/test-results/test/*.xml"
+                        bash ./gradlew sonar -Dsonar.host.url="http://192.168.86.243:9000" -Dsonar.projectKey=alokkulkarni_paymentsapi -Dsonar.jacocoPath="**/build/test-results/test/*.xml"
                     """
                 }
             }
