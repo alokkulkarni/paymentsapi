@@ -22,6 +22,6 @@ spec:
   owner: "group:default/productsandchannel"
   system: alokkulkarni/paymentsapi
   providesApis:
-    - kind: "api/info"
+    - "api/info"
   providedApis:
-    - kind: "paymentsDB"
+    - "paymentsDB"
