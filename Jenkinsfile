@@ -78,6 +78,20 @@ pipeline {
                 }
             }
         }
+        stage('Fix Grype Permission') {
+            steps {
+                script {
+                sh '''
+                    if [ -f "$WORKSPACE/.grype/grype" ]; then
+                    chmod +x "$WORKSPACE/.grype/grype"
+                    echo "Grype binary permission fixed."
+                    else
+                    echo "Grype binary not yet downloaded, will rely on autoInstall..."
+                    fi
+                '''
+                }
+            }
+        }
         stage('Analyze SBOM for Vulnerabilities') {
             steps {
                 // Use Grype or other tool to scan SBOM for vulnerabilities
