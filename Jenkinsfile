@@ -93,7 +93,7 @@ pipeline {
                     def arch = 'amd64'             // Adjust if needed
 
                     // Use one SBOM file path from sbom-artifacts, e.g. bom.xml or JSON file
-                    def sbomFile = 'sbom-artifacts/bom.xml'  
+                    def sbomFile = 'sbom-artifacts/*.xml'  
                     def reportFile = 'grype-report.json'
 
                     sh """
