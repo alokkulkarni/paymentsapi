@@ -78,29 +78,40 @@ pipeline {
                 }
             }
         }
-        stage('Grype Install Permission Fix') {
+        // stage('Analyze SBOM for Vulnerabilities') {
+        //     steps {
+        //         // Use Grype or other tool to scan SBOM for vulnerabilities
+        //         grypeScan autoInstall: false, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
+        //         archiveArtifacts artifacts: '*', fingerprint: true
+        //     }
+        // }
+        stage('Run Grype SBOM Scan') {
             steps {
-                // Trigger install, then chmod the binary
                 script {
-                    // Trigger dummy scan to force install
-                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                        grypeScan autoInstall: true, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
-                    }
+                    def grypeVersion = 'v0.65.0'   // Change as needed
+                    def osName = sh(script: "uname | tr '[:upper:]' '[:lower:]'", returnStdout: true).trim()
+                    def arch = 'amd64'             // Adjust if needed
 
-                    // Add execute permission
-                    sh '''
-                        echo "Fixing Grype permissions..."
-                        chmod +x "$WORKSPACE/grypeTmpDir/grype" || true
-                        ls -l "$WORKSPACE/grypeTmpDir/grype"
-                    '''
+                    // Use one SBOM file path from sbom-artifacts, e.g. bom.xml or JSON file
+                    def sbomFile = 'sbom-artifacts/bom.xml'  
+                    def reportFile = 'grype-report.json'
+
+                    sh """
+                    # Download and install Grype
+                    curl -sSfL https://github.com/anchore/grype/releases/download/${grypeVersion}/grype_${grypeVersion#v}_${osName}_${arch}.tar.gz -o grype.tar.gz
+                    tar -xzf grype.tar.gz
+                    chmod +x grype
+                    mv grype /usr/local/bin/grype
+
+                    # Verify installation
+                    grype version
+
+                    # Run Grype scan on the SBOM file and output JSON report
+                    grype sbom:${sbomFile} -o json > ${reportFile}
+
+                    echo "Grype scan complete. Report saved as ${reportFile}"
+                    """
                 }
-            }
-        }
-        stage('Analyze SBOM for Vulnerabilities') {
-            steps {
-                // Use Grype or other tool to scan SBOM for vulnerabilities
-                grypeScan autoInstall: false, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
-                archiveArtifacts artifacts: '*', fingerprint: true
             }
         }
         stage('SonarQube Analysis') {
