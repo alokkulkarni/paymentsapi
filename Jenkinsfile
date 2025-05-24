@@ -159,6 +159,9 @@ pipeline {
     }
     post {
         always {
+            echo "Cleaning up Docker images..."
+            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+
             script {
                 if (getContext(hudson.FilePath)) {
                     deleteDir()
