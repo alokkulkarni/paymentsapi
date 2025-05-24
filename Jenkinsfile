@@ -78,16 +78,24 @@ pipeline {
                 }
             }
         }
-        stage('Fix Grype Permission') {
+        stage('Grype Install Permission Fix') {
             steps {
+                // Trigger install, then chmod the binary
                 script {
+                // Trigger dummy scan to force install
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    grypeScanner(
+                    image: 'busybox:latest',
+                    autoInstall: true,
+                    failOnSeverity: 'critical'
+                    )
+                }
+
+                // Add execute permission
                 sh '''
-                    if [ -f "$WORKSPACE/grypeTmpDir/grype" ]; then
-                    chmod +x "$WORKSPACE/grypeTmpDir/grype"
-                    echo "Grype binary permission fixed."
-                    else
-                    echo "Grype binary not yet downloaded, will rely on autoInstall..."
-                    fi
+                    echo "Fixing Grype permissions..."
+                    chmod +x "$GRYPE_BIN" || true
+                    ls -l "$GRYPE_BIN"
                 '''
                 }
             }
@@ -95,7 +103,7 @@ pipeline {
         stage('Analyze SBOM for Vulnerabilities') {
             steps {
                 // Use Grype or other tool to scan SBOM for vulnerabilities
-                grypeScan autoInstall: true, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
+                grypeScan autoInstall: false, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
                 archiveArtifacts artifacts: '*', fingerprint: true
             }
         }
