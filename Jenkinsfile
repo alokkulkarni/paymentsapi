@@ -178,14 +178,13 @@ pipeline {
 
                         echo "Building Docker image with tags: paymentsapi:${branch} and paymentsapi:v${version}"
 
-                        sh """
+                        sh '''
                             docker buildx build \
                                 --platform=linux/amd64 \
                                 --load \
-                                -t paymentsapi:${branch} \
-                                -t paymentsapi:v${version} \
+                                -t paymentsapi:latest \
                                 .
-                        """
+                        '''
                     }
                 }
             }
