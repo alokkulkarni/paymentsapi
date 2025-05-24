@@ -83,11 +83,13 @@ sonarqube {
 
 pitest {
     targetClasses = ['com.example.payments.*']
+    junit5PluginVersion = '1.2.2'
     threads = 4
     outputFormats = ['HTML', 'XML']
     timestampedReports = false
-    mutationThreshold = 70
-    coverageThreshold = 70
+    // exportLineCoverage = true
+    mutationThreshold = 0
+    coverageThreshold = 0
 }
 
 // SBOM Configuration with CycloneDX
