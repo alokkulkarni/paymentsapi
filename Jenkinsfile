@@ -102,15 +102,6 @@ pipeline {
                 script {
                     docker.withRegistry("${DOCKER_REGISTRY}", 'docker-credential') {  // Configure Docker credentials in Jenkins
                         def customImage = docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
-                        // Add SBOM attestation to the image if cosign is available
-                        // sh '''
-                        //     if command -v cosign &> /dev/null; then
-                        //       echo "Attaching SBOM attestation to image..."
-                        //       cosign attach sbom --sbom sbom-artifacts/bom.json ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                        //     else
-                        //       echo "Cosign not available, skipping SBOM attestation"
-                        //     fi
-                        // '''
                         customImage.push()
                         customImage.push('latest')
                     }
