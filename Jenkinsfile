@@ -84,7 +84,7 @@ pipeline {
                 script {
                     // Trigger dummy scan to force install
                     catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                        grypeScan autoInstall: true image: 'busybox:latest'
+                        grypeScan autoInstall: true repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
                     }
 
                     // Add execute permission
