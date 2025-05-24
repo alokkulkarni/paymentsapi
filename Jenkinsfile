@@ -15,14 +15,14 @@ pipeline {
     tools {
         jdk 'JDK 17'  // Make sure this matches your Jenkins tool configuration
     }
-    stage('Debug Env') {
-      steps {
-        sh 'uname -a'
-        sh 'which docker || echo "Docker not found"'
-        sh 'ls /var/run/docker.sock || echo "Socket not mounted"'
-      }
-    }
     stages {
+        stage('Debug Env') {
+            steps {
+                sh 'uname -a'
+                sh 'which docker || echo "Docker not found"'
+                sh 'ls /var/run/docker.sock || echo "Socket not mounted"'
+            }
+        }
         stage('Checkout') {
             steps {
                 checkout([
