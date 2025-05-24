@@ -136,22 +136,77 @@ pipeline {
         //         }
         //     }
         // }
-        stage('Build Docker Image') {
+        stage('Get Version') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    def version = ''
+
+                    if (fileExists('pom.xml')) {
+                        // Extract version from pom.xml using xml parsing
+                        def pom = readFile('pom.xml')
+                        def matcher = pom =~ /<version>(.+?)<\/version>/
+                        if (matcher) {
+                            version = matcher[0][1].trim()
+                        } else {
+                            error "Could not find <version> in pom.xml"
+                        }
+                    } else if (fileExists('build.gradle')) {
+                        // Extract version from build.gradle file
+                        def gradleVersion = sh(
+                            script: "grep '^version' build.gradle | head -1 | awk -F'=' '{print \$2}' | tr -d \" '\"",
+                            returnStdout: true
+                        ).trim()
+
+                        if (gradleVersion) {
+                            version = gradleVersion
+                        } else {
+                            error "Could not find version in build.gradle"
+                        }
+                    } else {
+                        error "Neither pom.xml nor build.gradle found!"
+                    }
+
+                    echo "Extracted version: ${version}"
+                    env.RELEASE_VERSION = version
                 }
             }
         }
 
-        stage('Login to Docker Hub & Push') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    // Use Jenkins credentials for Docker login
+                    def branch = env.BRANCH_NAME?.replaceAll('/', '-') ?: "unknown-branch"
+                    def branchTag = "${env.IMAGE_NAME}:${branch}"
+                    def releaseTag = "${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
+
+                    echo "Building Docker image with tags: ${branchTag}, ${releaseTag}"
+
+                    sh """
+                      docker build -t ${branchTag} -t ${releaseTag} .
+                    """
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    def branch = env.BRANCH_NAME?.replaceAll('/', '-') ?: "unknown-branch"
+                    def branchTag = "${env.IMAGE_NAME}:${branch}"
+                    def releaseTag = "${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
+
                     withDockerRegistry(credentialsId: 'docker-credential', url: '') {
-                        // Push the Docker image
-                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                        // Push with try/catch to not fail first push
+                        try {
+                            sh "docker push ${branchTag}"
+                        } catch (e) {
+                            echo "Failed to push ${branchTag} (might be first time), continuing..."
+                        }
+                        try {
+                            sh "docker push ${releaseTag}"
+                        } catch (e) {
+                            echo "Failed to push ${releaseTag} (might be first time), continuing..."
+                        }
                     }
                 }
             }
@@ -160,7 +215,7 @@ pipeline {
     post {
         always {
             echo "Cleaning up Docker images..."
-            sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+            sh "docker rmi ${env.IMAGE_NAME}:${env.RELEASE_VERSION} || true"
 
             script {
                 if (getContext(hudson.FilePath)) {
