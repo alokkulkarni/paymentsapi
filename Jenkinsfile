@@ -51,8 +51,8 @@ pipeline {
                     def workspace = pwd()
                     sh """
                         cd ${workspace}
-                        ./gradlew test jacocoTestReport
-                        ./gradlew pitest
+                        bash ./gradlew test jacocoTestReport
+                        bash ./gradlew pitest
                     """
                     junit allowEmptyResults: true, testResults: '**/build/test-results/test/*.xml'
                     jacoco(
@@ -70,7 +70,7 @@ pipeline {
                     def workspace = pwd()
                     sh """
                         cd ${workspace}
-                        ./gradlew cyclonedxBom
+                        bash ./gradlew cyclonedxBom
                         mkdir -p sbom-artifacts
                         cp sbom/* sbom-artifacts/
                     """
@@ -89,7 +89,7 @@ pipeline {
             steps {
                  withSonarQubeEnv('sonarqubeak') {
                     sh """
-                        ./gradlew sonar -Dsonar.host.url="http://192.168.1.174:9000" -Dsonar.projectKey=alokkulkarni_paymentsapi -Dsonar.jacocoPath="**/build/test-results/test/*.xml"
+                        bash ./gradlew sonar -Dsonar.host.url="http://192.168.1.174:9000" -Dsonar.projectKey=alokkulkarni_paymentsapi -Dsonar.jacocoPath="**/build/test-results/test/*.xml"
                     """
                 }
             }
