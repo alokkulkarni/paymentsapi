@@ -42,7 +42,7 @@ pipeline {
                 sh 'chmod +x *'
                 sh 'ls -l ./gradlew'
                 sh 'chmod +x ./gradlew'
-                sh './gradlew clean build -x test'
+                sh 'bash ./gradlew clean build -x test'
             }
         }
         stage('Test') {
