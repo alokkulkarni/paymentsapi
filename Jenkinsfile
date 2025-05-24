@@ -82,6 +82,8 @@ pipeline {
             steps {
                 // Use Grype or other tool to scan SBOM for vulnerabilities
                 grypeScan autoInstall: true, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
+                sh 'chmod +x grypeTmpDir/grype'
+                sh './grypeTmpDir/grype version' // or the actual scan step
                 archiveArtifacts artifacts: '*', fingerprint: true
             }
         }
