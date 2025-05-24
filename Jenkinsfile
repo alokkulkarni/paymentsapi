@@ -181,8 +181,9 @@ pipeline {
 
                     echo "Building Docker image with tags: ${branchTag}, ${releaseTag}"
 
+                    sh 'docker buildx create --use || true'
                     sh """
-                      docker build -t ${branchTag} -t ${releaseTag} .
+                      docker buildx build --platform linux/amd64 -t ${branchTag} -t ${releaseTag} .
                     """
                 }
             }
