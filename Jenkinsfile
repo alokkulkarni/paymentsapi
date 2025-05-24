@@ -82,8 +82,8 @@ pipeline {
             steps {
                 script {
                 sh '''
-                    if [ -f "$WORKSPACE/.grype/grype" ]; then
-                    chmod +x "$WORKSPACE/.grype/grype"
+                    if [ -f "$WORKSPACE/grypeTmpDir/grype" ]; then
+                    chmod +x "$WORKSPACE/grypeTmpDir/grype"
                     echo "Grype binary permission fixed."
                     else
                     echo "Grype binary not yet downloaded, will rely on autoInstall..."
@@ -94,10 +94,10 @@ pipeline {
         }
         stage('Analyze SBOM for Vulnerabilities') {
             steps {
+                sh 'chmod +x "$WORKSPACE/grypeTmpDir/grype"'
+                sh './grypeTmpDir/grype version' // or the actual scan step
                 // Use Grype or other tool to scan SBOM for vulnerabilities
                 grypeScan autoInstall: true, repName: 'grypeReport_${JOB_NAME}_${BUILD_NUMBER}.txt', scanDest: 'dir:sbom-artifacts'
-                sh 'chmod +x grypeTmpDir/grype'
-                sh './grypeTmpDir/grype version' // or the actual scan step
                 archiveArtifacts artifacts: '*', fingerprint: true
             }
         }
