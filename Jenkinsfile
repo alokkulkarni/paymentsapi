@@ -151,35 +151,42 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Extract version from pom.xml or build.gradle and strip "-SNAPSHOT"
-                    def version = ''
-                    if (fileExists('pom.xml')) {
-                        version = sh(
-                            script: "grep '<version>' pom.xml | head -1 | sed -E 's/.*<version>([^<]+)<\\/version>.*/\\1/' | sed 's/-SNAPSHOT//' | xargs",
-                            returnStdout: true
-                        ).trim()
-                    } else if (fileExists('build.gradle')) {
-                        version = sh(
-                            script: "grep '^version' build.gradle | sed -E 's/version[ \\t]*=[ \\t]*[\"'\\']([^\"'\\']+)[\"'\\']/\\1/' | sed 's/-SNAPSHOT//' | xargs",
-                            returnStdout: true
-                        ).trim()
+                steps {
+                    script {
+                        def version = ''
+                        if (fileExists('pom.xml')) {
+                            version = sh(
+                                script: """
+                                    grep '<version>' pom.xml | head -1 | sed -E 's/.*<version>([^<]+)<\\/version>.*/\\1/' | sed 's/-SNAPSHOT//' | xargs
+                                """,
+                                returnStdout: true
+                            ).trim()
+                        } else if (fileExists('build.gradle')) {
+                            version = sh(
+                                script: '''
+                                    grep ^version build.gradle | sed -E "s/version[ \\t]*=[ \\t]*[\\"\\']([^\\\"\\']+)[\\"\\']/\\1/" | sed 's/-SNAPSHOT//' | xargs
+                                ''',
+                                returnStdout: true
+                            ).trim()
+                        }
+
+                        if (!version) {
+                            version = '0.0.1'
+                        }
+
+                        def branch = env.BRANCH_NAME ?: 'unknown-branch'
+
+                        echo "Building Docker image with tags: paymentsapi:${branch} and paymentsapi:v${version}"
+
+                        sh """
+                            docker buildx build \
+                                --platform=linux/amd64 \
+                                --load \
+                                -t paymentsapi:${branch} \
+                                -t paymentsapi:v${version} \
+                                .
+                        """
                     }
-
-                    if (!version) {
-                        version = '0.0.1'
-                    }
-
-                    def branch = env.BRANCH_NAME ?: 'unknown-branch'
-
-                    sh """
-                        docker buildx build \
-                            --platform=linux/amd64 \
-                            --load \
-                            -t paymentsapi:${branch} \
-                            -t paymentsapi:v${version} \
-                            .
-                    """
                 }
             }
         }
