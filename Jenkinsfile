@@ -38,8 +38,6 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'chmod +x /var/jenkins_home/workspace/paymentsapi'
-                sh 'chmod +x *'
                 sh 'ls -l ./gradlew'
                 sh 'chmod +x ./gradlew'
                 sh 'bash ./gradlew clean build -x test'
@@ -199,7 +197,6 @@ pipeline {
                         docker buildx build \
                             --platform=linux/amd64 \
                             --load \
-                            -t paymentsapi:${branchTag} \
                             -t paymentsapi:${releaseTag} \
                             .
                     """
@@ -220,11 +217,11 @@ pipeline {
 
                     withDockerRegistry(credentialsId: 'docker-credential', url: '') {
                         // Push with try/catch to not fail first push
-                        try {
-                            sh "docker push ${branchTag}"
-                        } catch (e) {
-                            echo "Failed to push ${branchTag} (might be first time), continuing..."
-                        }
+                        // try {
+                        //     sh "docker push ${branchTag}"
+                        // } catch (e) {
+                        //     echo "Failed to push ${branchTag} (might be first time), continuing..."
+                        // }
                         try {
                             sh "docker push ${releaseTag}"
                         } catch (e) {
