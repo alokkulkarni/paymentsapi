@@ -38,6 +38,8 @@ pipeline {
         }
         stage('Build') {
             steps {
+                sh 'chmod +x /var/jenkins_home/workspace/paymentsapi'
+                sh 'chmod +x *'
                 sh 'ls -l ./gradlew'
                 sh 'chmod +x ./gradlew'
                 sh './gradlew clean build -x test'
