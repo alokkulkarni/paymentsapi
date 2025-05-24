@@ -74,10 +74,8 @@ sonarqube {
     properties {
         property "sonar.projectKey", 'alokkulkarni_paymentsapi'
         property "sonar.projectName", 'paymentsapi'
-        // property "sonar.scm.disabled", "true"
-        // property "sonar.jacoco.reportPaths", "${project.buildDir}/customJacocoReportDir/jacocoTestReport.xml"
-        // property "sonar.host.url", ${secrets.SONAR_HOST_URL}
-        // property "sonar.token", ${secrets.SONAR_TOKEN}
+        property "sonar.host.url", "http://192.168.1.174:9000"
+        property "sonar.token","squ_89e9a9853a1eabaa612da6b8711f87d026d90253"
     }
 }
 
@@ -118,6 +116,10 @@ task copySbomArtifacts(type: Copy, dependsOn: 'cyclonedxBom') {
 }
 
 build {
+    dependsOn 'jacocoTestReport'
+    dependsOn 'jacocoTestCoverageVerification'
+    dependsOn 'pitest'
+    dependsOn 'sonar'
+    dependsOn qualityCheck
     dependsOn copySbomArtifacts
-    // dependsOn sonar
 }
