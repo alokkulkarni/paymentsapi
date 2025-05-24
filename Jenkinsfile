@@ -98,7 +98,7 @@ pipeline {
 
                     sh """
                     # Download and install Grype
-                    curl -sSfL https://github.com/anchore/grype/releases/download/${grypeVersion}/grype_${grypeVersion#v}_${osName}_${arch}.tar.gz -o grype.tar.gz
+                    curl -sSfL https://github.com/anchore/grype/releases/download/${grypeVersion}/grype_${grypeVersion.replaceFirst('v','')}_${osName}_${arch}.tar.gz -o grype.tar.gz
                     tar -xzf grype.tar.gz
                     chmod +x grype
                     mv grype /usr/local/bin/grype
