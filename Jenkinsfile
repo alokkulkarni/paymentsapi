@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_REGISTRY = 'https://hub.docker.com/alokkulkarni'  // Replace with your registry
+        DOCKER_REGISTRY = 'https://hub.docker.com/repositories/alokkulkarni'  // Replace with your registry
         IMAGE_NAME = 'paymentsapi'
         IMAGE_TAG = "${BUILD_NUMBER}"
         // SONAR_PROJECT_KEY = 'paymentsapi'
