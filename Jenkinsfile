@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'docker:24.0.5-dind'
+            args '--privileged'
+        }
+    }
     environment {
         DOCKER_REGISTRY = 'https://hub.docker.com/alokkulkarni'  // Replace with your registry
         IMAGE_NAME = 'paymentsapi'
