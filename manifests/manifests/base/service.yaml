@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: paymentsapi
+  labels:
+    app: paymentsapi
+    app.kubernetes.io/component: backstage
+    backstage.io/kubernetes-id: paymentsapi}
+spec:
+  ports:
+    - name: http-8086
+      port: 8086
+      protocol: TCP
+      targetPort: 8086
+  selector:
+    app: paymentsapi

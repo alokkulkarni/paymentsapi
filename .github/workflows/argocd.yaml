@@ -1,0 +1,53 @@
+name: Deploy to MicroK8s using ArgoCD
+run-name: Deploy to MicroK8s using ArgoCD
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy-to-microk8s:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL https://github.com/argoproj/argo-cd/releases/download/v2.4.9/argocd-linux-amd64 -o /usr/local/bin/argocd
+          chmod +x /usr/local/bin/argocd
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login localhost:8080 --username admin --password  --insecure
+
+      - name: Create ArgoCD Project (if not exists)
+        run: |
+          # Create ArgoCD project if not already present
+          if ! argocd proj list | grep -q "paymentsapi"; then
+            argocd proj create paymentsapi --description "Spring Boot app project" --dest-namespace default --dest-server https://kubernetes.default.svc
+          fi
+
+      - name: Create ArgoCD Application
+        run: |
+          # Create ArgoCD application for Spring Boot if not exists
+          if ! argocd app list | grep -q "paymentsapi"; then
+            argocd app create springboot-app \
+              --repo https://github.com/alokkulkarni/paymentsapi.git \
+              --path manifests/base \
+              --dest-server https://kubernetes.default.svc \
+              --dest-namespace default \
+              --sync-policy automated \
+              --project paymentsapi
+          fi
+
+      - name: Sync ArgoCD Application
+        run: |
+          # Sync ArgoCD app to deploy the app to MicroK8s
+          argocd app sync paymentsapi
+
+      - name: Verify Deployment in MicroK8s
+        run: |
+          kubectl get pods -n default
+

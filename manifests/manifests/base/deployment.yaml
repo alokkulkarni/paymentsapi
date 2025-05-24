@@ -1,0 +1,27 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: paymentsapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paymentsapi
+  template:
+    metadata:
+      labels:
+        app: paymentsapi
+        app.kubernetes.io/component: backstage
+        backstage.io/kubernetes-id: paymentsapi
+    spec:
+      containers:
+        - name: paymentsapi
+          image: alokkulkarni/paymentsapi:latest
+          ports:
+            - name: http-8086
+              containerPort: 8086
+              protocol: TCP
+          resources:
+            limits:
+              memory: '128Mi'
+              cpu: '500m'

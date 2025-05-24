@@ -1,0 +1,8 @@
+site_name: "paymentsapi"
+site_description: "payments api to capture local domestic payments"
+
+nav:
+  - Introduction: index.md
+
+plugins:
+  - techdocs-core

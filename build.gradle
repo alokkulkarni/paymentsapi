@@ -1,0 +1,121 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.3'
+    id 'io.spring.dependency-management' version '1.1.5'
+    id 'java'
+    id 'jacoco'
+    id 'info.solidsoft.pitest' version '1.15.0'
+    id 'org.cyclonedx.bom' version '2.2.0'
+    id 'org.sonarqube' version '6.0.1.5171'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // pitest 'org.example.pit.plugins:pitest-custom-plugin:0.42'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = '0.8.13'
+    reportsDirectory = file("$buildDir/customJacocoReportDir")
+}
+
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+        html.outputLocation = file("$buildDir/customJacocoReportDir")
+        xml.outputLocation = file("$buildDir/customJacocoReportDir/jacocoTestReport.xml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'BUNDLE'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
+            }
+        }
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", 'alokkulkarni_paymentsapi'
+        property "sonar.projectName", 'paymentsapi'
+        // property "sonar.scm.disabled", "true"
+        // property "sonar.jacoco.reportPaths", "${project.buildDir}/customJacocoReportDir/jacocoTestReport.xml"
+        // property "sonar.host.url", ${secrets.SONAR_HOST_URL}
+        // property "sonar.token", ${secrets.SONAR_TOKEN}
+    }
+}
+
+pitest {
+    targetClasses = ['com.example.payments.*']
+    threads = 4
+    outputFormats = ['HTML', 'XML']
+    timestampedReports = false
+    mutationThreshold = 70
+    coverageThreshold = 70
+}
+
+// SBOM Configuration with CycloneDX
+cyclonedxBom {
+    includeConfigs = ["runtimeClasspath", "compileClasspath"]
+    destination = file("$projectDir/sbom")
+    outputFormat = "all"
+    schemaVersion = "1.4"
+}
+
+// Custom task to run all quality checks
+task qualityCheck(dependsOn: ['test', 'jacocoTestCoverageVerification', 'pitest', 'cyclonedxBom']) {
+    group = 'verification'
+    description = 'Run all quality checks including tests, coverage, mutation testing, and SBOM generation'
+}
+
+bootJar {
+    archiveBaseName = 'paymentsapi'
+    archiveClassifier = ''
+}
+
+// Custom task to copy SBOM files to a dedicated directory
+task copySbomArtifacts(type: Copy, dependsOn: 'cyclonedxBom') {
+    from "$projectDir/sbom"
+    into "$projectDir/sbom-artifacts"
+}
+
+build {
+    dependsOn copySbomArtifacts
+    // dependsOn sonar
+}
