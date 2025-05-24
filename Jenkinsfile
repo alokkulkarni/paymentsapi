@@ -171,6 +171,20 @@ pipeline {
                 }
             }
         }
+        stage('Setup Docker Buildx') {
+            steps {
+                sh '''
+                    if ! docker buildx version > /dev/null 2>&1; then
+                        echo "Installing Docker Buildx..."
+                        mkdir -p ~/.docker/cli-plugins
+                        curl -SL https://github.com/docker/buildx/releases/download/v0.12.0/buildx-v0.12.0.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
+                        chmod +x ~/.docker/cli-plugins/docker-buildx
+                        docker buildx create --use || true
+                    fi
+                    docker buildx version
+                '''
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -181,10 +195,18 @@ pipeline {
 
                     echo "Building Docker image with tags: ${branchTag}, ${releaseTag}"
 
-                    sh 'docker buildx create --use || true'
                     sh """
-                      docker buildx build --platform linux/amd64 -t ${branchTag} -t ${releaseTag} .
+                        docker buildx build \
+                            --platform=linux/amd64 \
+                            --load \
+                            -t paymentsapi:${branchTag} \
+                            -t paymentsapi:${releaseTag} \
+                            .
                     """
+                    // sh 'docker buildx create --use || true'
+                    // sh """
+                    //   docker buildx build --platform linux/amd64 -t ${branchTag} -t ${releaseTag} .
+                    // """
                 }
             }
         }
