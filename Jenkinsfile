@@ -1,3 +1,5 @@
+def appVersion = ''
+
 pipeline {
     agent any
     environment {
@@ -16,13 +18,6 @@ pipeline {
         jdk 'JDK 17'  // Make sure this matches your Jenkins tool configuration
     }
     stages {
-        stage('Debug Env') {
-            steps {
-                sh 'uname -a'
-                sh 'which docker || echo "Docker not found"'
-                sh 'ls /var/run/docker.sock || echo "Socket not mounted"'
-            }
-        }
         stage('Checkout') {
             steps {
                 checkout([
@@ -152,16 +147,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                        def version = ''
                         if (fileExists('pom.xml')) {
-                            version = sh(
+                            appVersion = sh(
                                 script: """
                                     grep '<version>' pom.xml | head -1 | sed -E 's/.*<version>([^<]+)<\\/version>.*/\\1/' | sed 's/-SNAPSHOT//' | xargs
                                 """,
                                 returnStdout: true
                             ).trim()
                         } else if (fileExists('build.gradle')) {
-                            version = sh(
+                            appVersion = sh(
                                 script: '''
                                     grep ^version build.gradle | sed -E "s/version[ \\t]*=[ \\t]*[\\"\\']([^\\\"\\']+)[\\"\\']/\\1/" | sed 's/-SNAPSHOT//' | xargs
                                 ''',
@@ -169,21 +163,13 @@ pipeline {
                             ).trim()
                         }
 
-                        if (!version) {
-                            version = '0.0.1'
+                        if (!appVersion) {
+                            appVersion = '0.0.1'
                         }
 
-                        def branch = env.BRANCH_NAME ?: 'unknown-branch'
+                        echo "Building Docker image with and paymentsapi:v${appVersion}"
 
-                        echo "Building Docker image with tags: paymentsapi:${branch} and paymentsapi:v${version}"
-
-                        sh '''
-                            docker buildx build \
-                                --platform=linux/amd64 \
-                                --load \
-                                -t alokkulkarni/paymentsapi:v${version}\
-                                .
-                        '''
+                        sh "docker buildx build --platform=linux/amd64 --platform=macos/amd64 --load -t ${GITHUB_REPO}:v${appVersion} ."
                 }
             }
         }
@@ -191,21 +177,11 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    def branch = env.BRANCH_NAME?.replaceAll('/', '-') ?: "unknown-branch"
-                    def branchTag = "${env.IMAGE_NAME}:${branch}"
-                    def releaseTag = "alokkulkarni/${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
-
                     withDockerRegistry(credentialsId: 'docker-credential', url: '') {
-                        // Push with try/catch to not fail first push
-                        // try {
-                        //     sh "docker push ${branchTag}"
-                        // } catch (e) {
-                        //     echo "Failed to push ${branchTag} (might be first time), continuing..."
-                        // }
                         try {
-                            sh "docker push alokkulkarni/${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
+                            sh "docker push ${GITHUB_REPO}:v${appVersion} || true"
                         } catch (e) {
-                            echo "Failed to push ${releaseTag} (might be first time), continuing..."
+                            echo "Failed to push ${GITHUB_REPO}:v${appVersion} (might be first time), continuing..."
                         }
                     }
                 }
@@ -215,7 +191,7 @@ pipeline {
     post {
         always {
             echo "Cleaning up Docker images..."
-            sh "docker rmi alokkulkarni/paymentsapi:latest || true"
+            sh "docker rmi ${GITHUB_REPO}:v${appVersion} || true"
 
             script {
                 if (getContext(hudson.FilePath)) {
