@@ -169,7 +169,7 @@ pipeline {
 
                         echo "Building Docker image with and paymentsapi:v${appVersion}"
 
-                        sh "docker buildx build --platform=linux/amd64 --platform=macos/amd64 --load -t ${GITHUB_REPO}:v${appVersion} ."
+                        sh "docker buildx build --platform=linux/amd64 --load -t ${GITHUB_REPO}:v${appVersion} -f Dockerfile ."
                 }
             }
         }
