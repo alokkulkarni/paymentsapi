@@ -151,8 +151,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                steps {
-                    script {
+                script {
                         def version = ''
                         if (fileExists('pom.xml')) {
                             version = sh(
@@ -185,7 +184,6 @@ pipeline {
                                 -t alokkulkarni/paymentsapi \
                                 .
                         '''
-                    }
                 }
             }
         }
