@@ -182,7 +182,7 @@ pipeline {
                             docker buildx build \
                                 --platform=linux/amd64 \
                                 --load \
-                                -t paymentsapi:latest \
+                                -t alokkulkarni/paymentsapi \
                                 .
                         '''
                     }
@@ -205,7 +205,7 @@ pipeline {
                         //     echo "Failed to push ${branchTag} (might be first time), continuing..."
                         // }
                         try {
-                            sh "docker push ${releaseTag}"
+                            sh "docker push alokkulkarni/paymentsapi:latest"
                         } catch (e) {
                             echo "Failed to push ${releaseTag} (might be first time), continuing..."
                         }
@@ -217,7 +217,7 @@ pipeline {
     post {
         always {
             echo "Cleaning up Docker images..."
-            sh "docker rmi ${env.IMAGE_NAME}:${env.RELEASE_VERSION} || true"
+            sh "docker rmi alokkulkarni/paymentsapi:latest || true"
 
             script {
                 if (getContext(hudson.FilePath)) {
