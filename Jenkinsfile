@@ -181,7 +181,7 @@ pipeline {
                             docker buildx build \
                                 --platform=linux/amd64 \
                                 --load \
-                                -t alokkulkarni/paymentsapi \
+                                -t alokkulkarni/paymentsapi:v${version}\
                                 .
                         '''
                 }
@@ -193,7 +193,7 @@ pipeline {
                 script {
                     def branch = env.BRANCH_NAME?.replaceAll('/', '-') ?: "unknown-branch"
                     def branchTag = "${env.IMAGE_NAME}:${branch}"
-                    def releaseTag = "${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
+                    def releaseTag = "alokkulkarni/${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
 
                     withDockerRegistry(credentialsId: 'docker-credential', url: '') {
                         // Push with try/catch to not fail first push
@@ -203,7 +203,7 @@ pipeline {
                         //     echo "Failed to push ${branchTag} (might be first time), continuing..."
                         // }
                         try {
-                            sh "docker push alokkulkarni/paymentsapi:latest"
+                            sh "docker push alokkulkarni/${env.IMAGE_NAME}:v${env.RELEASE_VERSION}"
                         } catch (e) {
                             echo "Failed to push ${releaseTag} (might be first time), continuing..."
                         }
