@@ -12,8 +12,8 @@ metadata:
     # backstage.io/managed-by-location: ''
     jenkins.io/job-full-name: "paymentsapi"
     argocd/app-name: paymentsapi
-    jira/project-key: metrics # The key of the Jira project to track for this entity, or Comma-separated list of Jira project keys optionally prefixed with the instance name
-    jira/components: metrics # Jira component name separated with a comma. The Roadie Backstage Jira Plugin Jira annotation `/component` is also supported here by default
+    jira/project-key: Metrics # The key of the Jira project to track for this entity, or Comma-separated list of Jira project keys optionally prefixed with the instance name
+    jira/components: Metrics # Jira component name separated with a comma. The Roadie Backstage Jira Plugin Jira annotation `/component` is also supported here by default
     # jira/filter-ids: 12345,67890 # Jira filter id separated with a comma
     jira/incoming-issues-status: Incoming # The name of the status for incoming issues in Jira. Default: New
 spec:
