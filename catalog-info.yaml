@@ -14,7 +14,8 @@ metadata:
     argocd/app-name: paymentsapi
     jira/project-key: METRICS # The key of the Jira project to track for this entity, or Comma-separated list of Jira project keys optionally prefixed with the instance name
     jira/components: METRICS # Jira component name separated with a comma. The Roadie Backstage Jira Plugin Jira annotation `/component` is also supported here by default
-    # jira/filter-ids: 12345,67890 # Jira filter id separated with a comma
+    jira/token-type: Bearer
+    jira/all-issues-jql: # optional, used by EntityJiraQueryCard, this query supports basic templating with the above annotations if present, and information from the user profile. e.g. "assignee = {{ userEmail }} AND label = ({{ label }})"
     jira/incoming-issues-status: Incoming # The name of the status for incoming issues in Jira. Default: New
 spec:
   type: service
