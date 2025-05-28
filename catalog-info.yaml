@@ -21,7 +21,7 @@ spec:
   type: service
   lifecycle: experimental
   owner: "group:default/productsandchannel"
-  system: alokkulkarni/payments
+  system: payments
   providesApis:
     - "api:api/info"
     - "api:api/health"
