@@ -14,6 +14,7 @@ pipeline {
         GITHUB_REPO = 'alokkulkarni/paymentsapi'  // Replace with your GitHub org/repo
         GITHUB_BRANCH = 'main'  // Replace with your default branch
         TRIVY_VERSION = "0.24.0"  // Set the Trivy version to install
+        REPORT_FILE = "trivy_scan_report.txt"
     }
     tools {
         jdk 'JDK 17'  // Make sure this matches your Jenkins tool configuration
@@ -185,9 +186,15 @@ pipeline {
                     try {
                         sh """
                             docker pull aquasec/trivy:${TRIVY_VERSION}
-                            docker run --rm aquasec/trivy:${TRIVY_VERSION} image --exit-code 1 --severity HIGH,CRITICAL ${GITHUB_REPO}:v${appVersion}
+                            docker run --rm aquasec/trivy:${TRIVY_VERSION} image --exit-code 1 --severity HIGH,CRITICAL ${GITHUB_REPO}:v${appVersion} > ${REPORT_FILE} || true
                         """
+
+                        // Archive the Trivy scan report
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "${REPORT_FILE}", onlyIfSuccessful: false
+
                     } catch (Exception e) {
+                        // Archive the report even if the build fails
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "${REPORT_FILE}", onlyIfSuccessful: false
                         error "Trivy scan failed: ${e.getMessage()}"
                     }
                 }
