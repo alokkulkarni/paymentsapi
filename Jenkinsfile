@@ -176,54 +176,18 @@ pipeline {
             }
         }
 
-        stage('Check and Install Trivy') {
-            steps {
-                script {
-                    // Check if Trivy is installed
-                    def trivyInstalled = sh(script: "which trivy", returnStatus: true)
-                    
-                    // If Trivy is not installed, install it
-                    if (trivyInstalled != 0) {
-                        echo "Trivy not found, installing..."
-
-                        // Debugging: print current working directory and available files
-                        sh "pwd"
-                        sh "ls -l"
-
-                        // Attempt to install Trivy
-                        try {
-                            sh """
-                                curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-x86_64.tar.gz -o trivy.tar.gz
-                                tar zxvf trivy.tar.gz
-                                sudo mv trivy /usr/local/bin/
-                                rm trivy.tar.gz
-                            """
-                        } catch (Exception e) {
-                            error "Trivy installation failed: ${e.getMessage()}"
-                        }
-
-                        // Verify installation
-                        def trivyInstalledCheck = sh(script: "which trivy", returnStatus: true)
-                        if (trivyInstalledCheck != 0) {
-                            error "Trivy installation failed. Trivy not found after installation attempt."
-                        } else {
-                            echo "Trivy installed successfully."
-                        }
-                    } else {
-                        echo "Trivy is already installed"
-                    }
-                }
-            }
-        }
-
         stage('Trivy Scan') {
             steps {
                 script {
-                    // Perform Trivy scan on a Docker image (replace with your image)
-                    def image = 'your-image:latest'
-                    echo "Scanning Docker image: ${image} using Trivy"
+                    // Ensure the image to scan is built or pulled
+                    echo "Scanning Docker image: ${GITHUB_REPO}:v${appVersion} using Trivy Docker image"
+
+                    // Pull the Trivy Docker image and run the scan
                     try {
-                        sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${image}"
+                        sh """
+                            docker pull aquasec/trivy:${TRIVY_VERSION}
+                            docker run --rm aquasec/trivy:${TRIVY_VERSION} image --exit-code 1 --severity HIGH,CRITICAL ${GITHUB_REPO}:v${appVersion}
+                        """
                     } catch (Exception e) {
                         error "Trivy scan failed: ${e.getMessage()}"
                     }
