@@ -1,12 +1,4 @@
-# Use Alpine 3.22 as the base image
-FROM alpine:3.21
-
-# Set the environment variable for OpenJDK version
-ENV JAVA_VERSION 17
-
-# Install OpenJDK 17 and dependencies
-RUN apk update && \
-    apk add --no-cache openjdk17
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
