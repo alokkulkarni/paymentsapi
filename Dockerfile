@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM openjdk:17-jre-slim
 WORKDIR /app
 
 # Copy application jar
