@@ -192,6 +192,12 @@ pipeline {
                         // Archive the Trivy scan report
                         archiveArtifacts allowEmptyArchive: true, artifacts: "${REPORT_FILE}", onlyIfSuccessful: false
 
+                        // Check if high/critical vulnerabilities were found and fail the build if so
+                        def trivyReport = readFile("${REPORT_FILE}")
+                        if (trivyReport.contains("HIGH") || trivyReport.contains("CRITICAL")) {
+                            error "Trivy scan found high or critical vulnerabilities. Failing the build."
+                        }
+
                     } catch (Exception e) {
                         // Archive the report even if the build fails
                         archiveArtifacts allowEmptyArchive: true, artifacts: "${REPORT_FILE}", onlyIfSuccessful: false
