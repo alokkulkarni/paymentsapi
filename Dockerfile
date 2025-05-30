@@ -1,5 +1,5 @@
 # Use Alpine 3.22 as the base image
-FROM alpine:3.22
+FROM alpine:3.21
 
 # Set the environment variable for OpenJDK version
 ENV JAVA_VERSION 17
