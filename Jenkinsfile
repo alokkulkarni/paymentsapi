@@ -175,46 +175,6 @@ pipeline {
             }
         }
 
-        stage('Check and Install Trivy') {
-            steps {
-                script {
-                    // Check if Trivy is installed
-                    def trivyInstalled = sh(script: "which trivy", returnStatus: true)
-                    
-                    // If Trivy is not installed, install it
-                    if (trivyInstalled != 0) {
-                        echo "Trivy not found, installing..."
-
-                        // Debugging: print current working directory and available files
-                        sh "pwd"
-                        sh "ls -l"
-
-                        // Attempt to install Trivy
-                        try {
-                            sh """
-                                curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-x86_64.tar.gz -o trivy.tar.gz
-                                tar zxvf trivy.tar.gz
-                                sudo mv trivy /usr/local/bin/
-                                rm trivy.tar.gz
-                            """
-                        } catch (Exception e) {
-                            error "Trivy installation failed: ${e.getMessage()}"
-                        }
-
-                        // Verify installation
-                        def trivyInstalledCheck = sh(script: "which trivy", returnStatus: true)
-                        if (trivyInstalledCheck != 0) {
-                            error "Trivy installation failed. Trivy not found after installation attempt."
-                        } else {
-                            echo "Trivy installed successfully."
-                        }
-                    } else {
-                        echo "Trivy is already installed"
-                    }
-                }
-            }
-        }
-
         stage('Trivy Scan') {
             steps {
                 script {
