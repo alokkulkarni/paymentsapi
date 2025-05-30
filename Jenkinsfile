@@ -13,6 +13,8 @@ pipeline {
         // SCAN_S3_BUCKET = 'your-security-reports-bucket'  // Add this line
         GITHUB_REPO = 'alokkulkarni/paymentsapi'  // Replace with your GitHub org/repo
         GITHUB_BRANCH = 'main'  // Replace with your default branch
+        TRIVY_VERSION = "0.24.0"  // Set the Trivy version to install
+        TRIVY_INSTALL_PATH = "/usr/local/bin/trivy"  // Path to install Trivy
     }
     tools {
         jdk 'JDK 17'  // Make sure this matches your Jenkins tool configuration
@@ -170,6 +172,39 @@ pipeline {
                         echo "Building Docker image with and paymentsapi:v${appVersion}"
 
                         sh "docker buildx build --platform=linux/amd64 --load -t ${GITHUB_REPO}:v${appVersion} -f Dockerfile ."
+                }
+            }
+        }
+
+        stage('Check and Install Trivy') {
+            steps {
+                script {
+                    // Check if Trivy is installed
+                    def trivyInstalled = sh(script: "which trivy", returnStatus: true)
+                    
+                    // If Trivy is not installed, install it
+                    if (trivyInstalled != 0) {
+                        echo "Trivy not found, installing..."
+                        sh """
+                            curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-x86_64.tar.gz -o trivy.tar.gz
+                            tar zxvf trivy.tar.gz
+                            sudo mv trivy /usr/local/bin/
+                            rm trivy.tar.gz
+                        """
+                    } else {
+                        echo "Trivy is already installed"
+                    }
+                }
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                script {
+                    // Perform Trivy scan on a Docker image (replace with your image)
+                    def image = 'your-image:latest'
+                    echo "Scanning Docker image: ${image} using Trivy"
+                    sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${image}"
                 }
             }
         }
