@@ -17,7 +17,7 @@ pipeline {
         REPORT_FILE = "trivy_scan_report.txt"
     }
     tools {
-        jdk 'JDK 17'  // Make sure this matches your Jenkins tool configuration
+        jdk 'JDK 21'  // Make sure this matches your Jenkins tool configuration
     }
     stages {
         stage('Checkout') {
