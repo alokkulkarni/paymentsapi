@@ -29,7 +29,7 @@ spec:
   providedApis:
     - paymentsapi
   dependsOn:
-    - resource:default/artists-db
+    - resource:default/paymentsDB
   definition: |
     openapi: 3.0.3
     info:
