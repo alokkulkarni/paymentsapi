@@ -25,7 +25,8 @@ spec:
   dependencyOf:
     - component:alokkulkarni/payments
   providesApis:
-    - kind: OpenAPI 
+    - api:info
+    - api:health
   providedApis:
     - paymentsapi
   dependsOn:
