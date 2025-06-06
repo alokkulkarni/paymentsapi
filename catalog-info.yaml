@@ -23,13 +23,13 @@ spec:
   owner: "productsandchannel"
   system: payments
   dependencyOf:
-    - component:alokkulkarni/payments
+    - system:payments
   providesApis:
     - "api:info"
   providedApis:
     - paymentsapi
   dependsOn:
-    - resource:default/paymentsDB
+    - resource:paymentsDB
   definition: |
     openapi: 3.0.3
     info:
