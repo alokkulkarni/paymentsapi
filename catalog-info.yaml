@@ -22,8 +22,6 @@ spec:
   lifecycle: experimental
   owner: "productsandchannel"
   system: payments
-  dependencyOf:
-    - system:payments
   providesApis:
     - "api:info"
   providedApis:
