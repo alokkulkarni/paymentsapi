@@ -25,8 +25,7 @@ spec:
   dependencyOf:
     - component:alokkulkarni/payments
   providesApis:
-    - api:info
-    - api:health
+    - "api:info"
   providedApis:
     - paymentsapi
   dependsOn:
