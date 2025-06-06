@@ -18,7 +18,7 @@ metadata:
     # jira/all-issues-jql: # optional, used by EntityJiraQueryCard, this query supports basic templating with the above annotations if present, and information from the user profile. e.g. "assignee = {{ userEmail }} AND label = ({{ label }})"
     jira/incoming-issues-status: Incoming # The name of the status for incoming issues in Jira. Default: New
 spec:
-  type: service
+  type: api
   lifecycle: experimental
   owner: "group:default/productsandchannel"
   system: payments
