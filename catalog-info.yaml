@@ -20,7 +20,7 @@ metadata:
 spec:
   type: openapi
   lifecycle: experimental
-  owner: "group:default/productsandchannel"
+  owner: "productsandchannel"
   system: payments
   dependencyOf:
     - component:alokkulkarni/payments
