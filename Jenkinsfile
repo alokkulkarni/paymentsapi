@@ -186,7 +186,7 @@ pipeline {
                     try {
                         sh """
                             docker pull aquasec/trivy:${TRIVY_VERSION}
-                            docker run --rm aquasec/trivy:${TRIVY_VERSION} image --exit-code 1 --severity HIGH,CRITICAL --skip-update --no-progress image ${GITHUB_REPO}:v${appVersion} > ${REPORT_FILE} || true
+                            docker run --rm aquasec/trivy:${TRIVY_VERSION} image --exit-code 1 --severity HIGH,CRITICAL --skip-update --no-progress ${GITHUB_REPO}:v${appVersion} > ${REPORT_FILE} || true
                         """
 
                         // Archive the Trivy scan report
