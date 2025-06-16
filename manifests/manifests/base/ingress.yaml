@@ -17,4 +17,4 @@ spec:
             service:
               name: paymentsapi
               port:
-                number: 8086
+                number: 8585
