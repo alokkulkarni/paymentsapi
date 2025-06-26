@@ -111,9 +111,9 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                 withSonarQubeEnv('sonarToken') {
+                 withSonarQubeEnv('sonarqubeak') {
                     sh """
-                        bash ./gradlew sonar -Dsonar.host.url="http://192.168.86.28:9000" -Dsonar.projectKey=alokkulkarni_paymentsapi -Dsonar.jacocoPath="**/build/test-results/test/*.xml"
+                        bash ./gradlew sonar -Dsonar.host.url="http://192.168.1.137:9000" -Dsonar.projectKey=alokkulkarni_paymentsapi -Dsonar.jacocoPath="**/build/test-results/test/*.xml"
                     """
                 }
             }
