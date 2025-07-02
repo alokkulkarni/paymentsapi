@@ -48,21 +48,39 @@ jobs:
         with:
           username: 'alokkulkarni'
           password: 'Sheetli0913*'
-
-      - name: Setup Buildx
+          
+      - name: Create builder
         run: |
           docker buildx create --name mybuilder --driver remote tcp://localhost:1234 || true
           docker buildx use mybuilder
-
-      - name: Build Image
+          
+      - name: Build amd64
         run: |
           docker buildx build \
             --builder mybuilder \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             --load \
-            -t alokkulkarni/paymentsapi:latest \
+            -t alokkulkarni/paymentsapi:amd64 \
             .
 
-      - name: Push Docker Image
+      - name: Build arm64
         run: |
-          docker push alokkulkarni/paymentsapi:latest
+          docker buildx build \
+            --builder mybuilder \
+            --platform linux/arm64 \
+            --load \
+            -t alokkulkarni/paymentsapi:arm64 \
+            .
+
+      - name: Push both images
+        run: |
+          docker push alokkulkarni/paymentsapi:amd64
+          docker push alokkulkarni/paymentsapi:arm64
+
+      - name: Create and push manifest
+        run: |
+          docker manifest create alokkulkarni/paymentsapi:latest \
+            --amend alokkulkarni/paymentsapi:amd64 \
+            --amend alokkulkarni/paymentsapi:arm64
+
+          docker manifest push myregistry/myapp:latest
