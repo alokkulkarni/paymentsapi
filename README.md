@@ -1,5 +1,4 @@
-[![CI Pipeline](https://github.com/alokkulkarni/paymentsapi/actions/workflows/ci.yaml/badge.svg)](https://github.com/alokkulkarni/paymentsapi/actions/workflows/ci.yaml) |    [[![Quality Gate Status](http://localhost:9000/api/project_badges/measure?project=alokkulkarni_paymentsapi&metric=alert_status&token=sqb_58cb4ced38e67cb90f7f69887bd6ec384fd88bca)](http://localhost:9000/dashboard?id=alokkulkarni_paymentsapi)](http://localhost:9000/api/project_badges/measure?project=alokkulkarni_paymentsapi&metric=alert_status&token=sqb_58cb4ced38e67cb90f7f69887bd6ec384fd88bca)
-
+[![CI Pipeline](https://github.com/alokkulkarni/paymentsapi/actions/workflows/ci.yaml/badge.svg)](https://github.com/alokkulkarni/paymentsapi/actions/workflows/ci.yaml) |  [[http://localhost:9000/api/project_badges/measureproject=alokkulkarni_paymentsapi&metric=alert_status&token=sqb_58cb4ced38e67cb90f7f69887bd6ec384fd88bca)]
 # paymentsapi Application 
 
 This is a sample Spring Boot application configured to use Gradle build system, with support for running on Amazon EKS with AWS ALB Ingress Controller.
