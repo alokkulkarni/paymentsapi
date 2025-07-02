@@ -49,9 +49,19 @@ jobs:
           username: 'alokkulkarni'
           password: 'Sheetli0913*'
 
-      - name: Build Docker Image
+      - name: Setup Buildx
         run: |
-          docker build -t alokkulkarni/paymentsapi:latest .
+          docker buildx create --name mybuilder --driver remote tcp://localhost:1234 || true
+          docker buildx use mybuilder
+
+      - name: Build Image
+        run: |
+          docker buildx build \
+            --builder mybuilder \
+            --platform linux/amd64,linux/arm64 \
+            --load \
+            -t alokkulkarni/paymentsapi:latest \
+            .
 
       - name: Push Docker Image
         run: |
