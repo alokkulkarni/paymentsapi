@@ -1,3 +1,5 @@
+[![CI Pipeline](https://github.com/alokkulkarni/paymentsapi/actions/workflows/ci.yaml/badge.svg)](https://github.com/alokkulkarni/paymentsapi/actions/workflows/ci.yaml)
+
 # paymentsapi Application 
 
 This is a sample Spring Boot application configured to use Gradle build system, with support for running on Amazon EKS with AWS ALB Ingress Controller.
