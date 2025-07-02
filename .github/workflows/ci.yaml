@@ -49,26 +49,17 @@ jobs:
           username: 'alokkulkarni'
           password: 'Sheetli0913*'
           
-      - name: Create builder
-        run: |
-          docker buildx create --name mybuilder --driver remote tcp://localhost:1234 || true
-          docker buildx use mybuilder
-          
       - name: Build amd64
         run: |
           docker buildx build \
-            --builder mybuilder \
             --platform linux/amd64 \
-            --load \
             -t alokkulkarni/paymentsapi:amd64 \
             .
 
       - name: Build arm64
         run: |
           docker buildx build \
-            --builder mybuilder \
             --platform linux/arm64 \
-            --load \
             -t alokkulkarni/paymentsapi:arm64 \
             .
 
