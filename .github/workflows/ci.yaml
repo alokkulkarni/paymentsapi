@@ -40,7 +40,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: 'squ_e6a21d6b46dbed8a46fbb9c6ac9657a2251741b4'
-          SONAR_HOST_URL: 'http://sonarqube.default.svc.cluster.local:9000'
+          SONAR_HOST_URL: 'http://sonarqube.arc-systems.svc.cluster.local:9000'
         run: ./gradlew build sonar --info
 
       - name: Log in to Docker Hub
