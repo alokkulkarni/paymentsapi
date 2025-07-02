@@ -74,4 +74,4 @@ jobs:
             --amend alokkulkarni/paymentsapi:amd64 \
             --amend alokkulkarni/paymentsapi:arm64
 
-          docker manifest push myregistry/myapp:latest
+          docker manifest push alokkulkarni/paymentsapi:latest
